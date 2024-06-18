@@ -70,16 +70,16 @@ public final class App {
 
     }
 
-    public void  loadConfigFile(String configFile) throws Exception {
+    public void loadConfigFile(String configFile) throws Exception {
         JsonReader rdr = Json.createReader(new FileInputStream(configFile));
         JsonArray jarr = rdr.readArray();
 
         Scanner s = new Scanner(System.in);
 
-        for(int  i = 0; i < jarr.size(); i++) {
+        for (int i = 0; i < jarr.size(); i++) {
             JsonObject jobj = jarr.getJsonObject(i);
             System.out.print("Enter the Admin Password for " + jobj.getString("cluster_node") + ":");
-            clusterPwd.add(s.nextLine());    
+            clusterPwd.add(s.nextLine());
         }
 
         System.out.println("[loadConfigFile] Cluster Config Loaded");
@@ -89,66 +89,79 @@ public final class App {
 
     public void saveClusterDBDetails() throws Exception {
         PrintWriter pw = new PrintWriter("./bdb-report.csv");
-        pw.println("cluster_name,db_name,version,usage_category,memory_size,search,data_persistence,replication,sharding,shard_count,backup,eviction_policy,flash,crdt,crdt_guid");
+        pw.println(
+                "cluster_name,db_name,version,usage_category,memory_size,search,data_persistence,replication,sharding,shard_count,backup,eviction_policy,flash,crdt,crdt_guid");
 
-        //make api call for each cluster
-        for(int c = 0; c < clusterConfig.size(); c++) {
+        // make api call for each cluster
+        for (int c = 0; c < clusterConfig.size(); c++) {
             JsonObject clusterObj = clusterConfig.getJsonObject(c);
 
-        
             setBasicAuthString(clusterObj.getString("cluster_admin"), clusterPwd.get(c));
 
-            //make the api call
+            // make the api call
             String apiPort = "9443";
 
-            try { apiPort = clusterObj.getString("cluster_api_port");}catch(Exception e){}
+            try {
+                apiPort = clusterObj.getString("cluster_api_port");
+            } catch (Exception e) {
+            }
 
             JsonArray bdbArr = getJsonArray("https://" + clusterObj.getString("cluster_node") + ":" + apiPort + bdbURI);
             System.out.println("Number of DBs in Cluster: " + bdbArr.size() + " ");
 
-            //loop though each DB in the cluster
-            for(int b = 0; b < bdbArr.size(); b++) {
+            // loop though each DB in the cluster
+            for (int b = 0; b < bdbArr.size(); b++) {
                 JsonObject bdb = bdbArr.getJsonObject(b);
                 String record = clusterObj.getString("cluster_node");
                 String usageCategory = "Cache";
                 String search = "FALSE";
 
-                //find the usage category
-                if(!"disabled".equalsIgnoreCase(bdb.getString("data_persistence")) || bdb.getBoolean("backup") || "noeviction".equalsIgnoreCase(bdb.getString("eviction_policy"))) {
+                // find the usage category
+                if (!"disabled".equalsIgnoreCase(bdb.getString("data_persistence")) || bdb.getBoolean("backup")
+                        || "noeviction".equalsIgnoreCase(bdb.getString("eviction_policy"))) {
                     usageCategory = "Database";
                 }
 
-                //if search enabled then database
+                // if search enabled then database
                 JsonArray moduleList = bdb.getJsonArray("module_list");
 
                 try {
-                    for(int m = 0; m < moduleList.size(); m++) {
+                    for (int m = 0; m < moduleList.size(); m++) {
                         JsonObject modules = moduleList.getJsonObject(m);
-                        if("search".equalsIgnoreCase(modules.getString("module_name"))) {
+                        if ("search".equalsIgnoreCase(modules.getString("module_name"))) {
                             usageCategory = "Database";
                             search = "TRUE";
                         }
                     }
+                } catch (Exception e) {
                 }
-                catch(Exception e) {}
 
-
-                
-                record = record + "," + bdb.getString("name") + "," + bdb.getString("version") + "," + usageCategory + ","
-                        + bdb.getInt("memory_size")  + "," + search + "," + bdb.getString("data_persistence") + "," + bdb.getBoolean("replication") + "," + bdb.getBoolean("sharding") + ","
-                        + bdb.getInt("shards_count") + "," + bdb.getBoolean("backup") +  "," + bdb.getString("eviction_policy") + "," + bdb.getBoolean("bigstore") + ","
+                record = record + "," + bdb.getString("name") + "," + bdb.getString("version") + "," + usageCategory
+                        + ","
+                        + bdb.getInt("memory_size") + "," + search + "," + bdb.getString("data_persistence") + ","
+                        + bdb.getBoolean("replication") + "," + bdb.getBoolean("sharding") + ","
+                        + bdb.getInt("shards_count") + "," + bdb.getBoolean("backup") + ","
+                        + bdb.getString("eviction_policy") + "," + bdb.getBoolean("bigstore") + ","
                         + bdb.getBoolean("crdt") + "," + bdb.getString("crdt_guid");
 
                 pw.println(record);
             }
-            
+
         }
 
         pw.close();
     }
 
-
     static void disableCertValidaton() {
+
+        javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+                new javax.net.ssl.HostnameVerifier() {
+
+                    public boolean verify(String hostname,
+                            javax.net.ssl.SSLSession sslSession) {
+                        return true; // or return true
+                    }
+                });
 
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[] {
@@ -184,13 +197,17 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
+
         // For dev purposes only
         disableCertValidaton();
+
+        System.out.println("Version 1.3");
 
         if (args.length == 0) {
             System.out.println(
                     "Description: This script leverages the RE Rest API to report on the DB configuration within one or more Redis Enterprise Clusters.\n");
-            System.out.println("Usage:\njava -cp ./bdb-v-1.0-jar-with-dependencies.jar com.redis.r2a2.App ./cluster_config.json");
+            System.out.println(
+                    "Usage:\njava -cp ./bdb-v-1.0-jar-with-dependencies.jar com.redis.r2a2.App ./cluster_config.json");
         } else {
             App bdb = new App();
             System.out.println("");
