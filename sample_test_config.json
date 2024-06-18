@@ -1,15 +1,15 @@
 [
 	{
 		"cluster_name" : "cluster1",
-		"cluster_node" : "node1.jsd.demo.redislabs.com",
-		"cluster_admin" : "jay.dastur@redis.com"
+		"cluster_node" : "<cluster fqdn>",
+		"cluster_admin" : "<admin email>"
 		
 	},
 		{
 		"cluster_name" : "cluster2",
-		"cluster_node" : "jsd.demo.redislabs.com",
+		"cluster_node" : "<cluster fqdn>",
 		"cluster_api_port" : "9443",
-		"cluster_admin" : "jay.dastur@redis.com"
+		"cluster_admin" : "<admin email>"
 		
 	}
 ]
