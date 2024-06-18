@@ -1,0 +1,13 @@
+cluster_name,db_name,version,usage_category,memory_size,search,data_persistence,replication,sharding,shard_count,backup,eviction_policy,flash,crdt,crdt_guid
+node1.jsd.demo.redislabs.com,redis-di-1,7.2.3,Database,209715200,FALSE,aof,false,false,1,false,noeviction,false,false,
+node1.jsd.demo.redislabs.com,rdi-ingest,7.2.3,Cache,536870912,FALSE,disabled,false,false,1,false,volatile-lru,false,false,
+node1.jsd.demo.redislabs.com,rdi-ingest2,7.2.3,Cache,322122547,FALSE,disabled,false,false,1,false,volatile-lru,false,false,
+node1.jsd.demo.redislabs.com,db-wb,7.2.3,Database,-2147483648,TRUE,snapshot,false,false,1,false,volatile-lru,false,false,
+node1.jsd.demo.redislabs.com,sql-read-replica,7.2.3,Database,536870912,FALSE,snapshot,true,false,1,false,volatile-random,false,false,
+node1.jsd.demo.redislabs.com,vector-db,7.2.3,Database,107374182,TRUE,snapshot,true,false,1,false,volatile-lru,false,false,
+jsd.demo.redislabs.com,redis-di-1,7.2.3,Database,209715200,FALSE,aof,false,false,1,false,noeviction,false,false,
+jsd.demo.redislabs.com,rdi-ingest,7.2.3,Cache,536870912,FALSE,disabled,false,false,1,false,volatile-lru,false,false,
+jsd.demo.redislabs.com,rdi-ingest2,7.2.3,Cache,322122547,FALSE,disabled,false,false,1,false,volatile-lru,false,false,
+jsd.demo.redislabs.com,db-wb,7.2.3,Database,-2147483648,TRUE,snapshot,false,false,1,false,volatile-lru,false,false,
+jsd.demo.redislabs.com,sql-read-replica,7.2.3,Database,536870912,FALSE,snapshot,true,false,1,false,volatile-random,false,false,
+jsd.demo.redislabs.com,vector-db,7.2.3,Database,107374182,TRUE,snapshot,true,false,1,false,volatile-lru,false,false,
