@@ -187,17 +187,15 @@ public final class App {
         // For dev purposes only
         disableCertValidaton();
 
-        if (args.length > 0) {
+        if (args.length == 0) {
             System.out.println(
-                    "Description: This script leverages the Redis Rest API to report on the DB configuration within one or more Redis Enterprise Clusters.\n");
-            System.out.println("Usage:\njava -cp BDB-Usage.jar App ./cluster-config.json");
+                    "Description: This script leverages the RE Rest API to report on the DB configuration within one or more Redis Enterprise Clusters.\n");
+            System.out.println("Usage:\njava -cp ./bdb-v-1.0-jar-with-dependencies.jar com.redis.r2a2.App ./cluster_config.json");
         } else {
             App bdb = new App();
             System.out.println("");
-            bdb.loadConfigFile("./sample_test_config.json");
+            bdb.loadConfigFile(args[0]);
             bdb.saveClusterDBDetails();
-            bdb.setBasicAuthString("jay.dastur@redis.com", "RedisGeek");
-            bdb.executeGet("https://node1.jsd.demo.redislabs.com:9443/v1/cluster?fields=name");
 
         }
 
