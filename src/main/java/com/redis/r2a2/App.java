@@ -154,14 +154,15 @@ public final class App {
 
     static void disableCertValidaton() {
 
+        
         javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
                 new javax.net.ssl.HostnameVerifier() {
-
                     public boolean verify(String hostname,
                             javax.net.ssl.SSLSession sslSession) {
-                        return true; // or return true
+                            return true; // or return true
                     }
                 });
+        
 
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[] {
