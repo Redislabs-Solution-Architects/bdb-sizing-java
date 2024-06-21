@@ -1,15 +1,10 @@
 package com.redis.r2a2;
 
-import java.io.File;
+
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Scanner;
@@ -22,7 +17,6 @@ import javax.json.JsonReader;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
@@ -88,7 +82,7 @@ public final class App {
     }
 
     public void saveClusterDBDetails() throws Exception {
-        PrintWriter pw = new PrintWriter("./bdb-report.csv");
+        PrintWriter pw = new PrintWriter("./bdb-report" + System.currentTimeMillis() + ".csv");
         pw.println(
                 "cluster_name,db_name,version,usage_category,memory_size,search,data_persistence,replication,sharding,shard_count,backup,eviction_policy,flash,crdt,crdt_guid");
 
@@ -117,8 +111,8 @@ public final class App {
                 String search = "FALSE";
 
                 // find the usage category
-                if (!"disabled".equalsIgnoreCase(bdb.getString("data_persistence")) || bdb.getBoolean("backup")
-                        || "noeviction".equalsIgnoreCase(bdb.getString("eviction_policy"))) {
+                if (!"disabled".equalsIgnoreCase(getString(bdb, "data_persistence")) || bdb.getBoolean("backup")
+                        || "noeviction".equalsIgnoreCase(getString(bdb, "eviction_policy"))) {
                     usageCategory = "Database";
                 }
 
@@ -136,13 +130,15 @@ public final class App {
                 } catch (Exception e) {
                 }
 
-                record = record + "," + bdb.getString("name") + "," + bdb.getString("version") + "," + usageCategory
-                        + ","
-                        + bdb.getInt("memory_size") + "," + search + "," + bdb.getString("data_persistence") + ","
-                        + bdb.getBoolean("replication") + "," + bdb.getBoolean("sharding") + ","
-                        + bdb.getInt("shards_count") + "," + bdb.getBoolean("backup") + ","
-                        + bdb.getString("eviction_policy") + "," + bdb.getBoolean("bigstore") + ","
-                        + bdb.getBoolean("crdt") + "," + bdb.getString("crdt_guid");
+                String memorySize = "" + bdb.getJsonNumber("memory_size").bigIntegerValueExact();
+                
+
+                record = record + "," + getString(bdb, "name") + "," + getString(bdb, "version") + "," + usageCategory + ","
+                        + memorySize + "," + search + "," + getString(bdb, "data_persistence") + ","
+                        + getBoolean(bdb, "replication") + "," + getBoolean(bdb, "sharding") + ","
+                        + bdb.getInt("shards_count") + "," + getBoolean(bdb, "backup") + ","
+                        + getString(bdb, "eviction_policy") + "," + getBoolean(bdb,"bigstore") + ","
+                        +  getBoolean(bdb, "crdt") + "," + getString(bdb, "crdt_guid");
 
                 pw.println(record);
             }
@@ -150,6 +146,28 @@ public final class App {
         }
 
         pw.close();
+    }
+
+    private boolean getBoolean(JsonObject jobj, String key) {
+        boolean keyVal = false;
+
+        try {
+            keyVal = jobj.getBoolean(key);
+        }
+        catch(Exception e){}
+
+        return keyVal;
+    }
+
+    private String getString(JsonObject jobj, String key) {
+        String keyVal = "";
+
+        try {
+            keyVal = jobj.getString(key);
+        }
+        catch(Exception e){}
+
+        return keyVal;
     }
 
     static void disableCertValidaton() {
@@ -202,7 +220,7 @@ public final class App {
         // For dev purposes only
         disableCertValidaton();
 
-        System.out.println("Version 1.3");
+        System.out.println("Version 1.5");
 
         if (args.length == 0) {
             System.out.println(
